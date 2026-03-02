@@ -1,3 +1,9 @@
 spring:
   application:
     name: spring-ai-2-substack-hero
+
+  ai:
+    ollama:
+      chat:
+        options:
+          model: "qwen3"
