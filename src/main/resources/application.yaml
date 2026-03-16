@@ -1,9 +1,6 @@
 spring:
   application:
     name: spring-ai-2-substack-hero
-
   ai:
-    ollama:
-      chat:
-        options:
-          model: "qwen3"
+    openai:
+      api-key: ${OPEN_AI_API_KEY}
