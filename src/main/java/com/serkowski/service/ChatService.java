@@ -1,14 +1,8 @@
 package com.serkowski.service;
 
+import com.serkowski.model.Response;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MimeType;
-import org.springframework.util.MimeTypeUtils;
-
-import java.net.URI;
-import java.net.URL;
 
 @Service
 public class ChatService {
@@ -19,25 +13,10 @@ public class ChatService {
         this.chatClient = chatClient;
     }
 
-    public String chat(String message, String fileUrl) {
-        try {
-            UrlResource resource = new UrlResource(fileUrl);
-            return chatClient.prompt()
-                    .user(userSpec -> userSpec.text(message)
-                            .media(MimeTypeUtils.IMAGE_PNG, resource))
-                    .call()
-                    .content();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Issue with chat with file " + fileUrl, e);
-        }
-    }
-
-    public String chatWithResource(String message, Resource file) {
+    public Response chat(String message) {
         return chatClient.prompt()
-                .user(userSpec -> userSpec.text(message)
-                        .media(MimeTypeUtils.IMAGE_PNG, file))
+                .user(message)
                 .call()
-                .content();
+                .entity(Response.class);
     }
-
 }

@@ -1,6 +1,6 @@
 package com.serkowski.controller;
 
-import com.serkowski.model.ChatWithFileRequest;
+import com.serkowski.model.Response;
 import com.serkowski.service.ChatService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,9 +16,11 @@ public class ChatController {
     }
 
     @PostMapping("/chat")
-    public String chat(@RequestBody ChatWithFileRequest request) {
-        return chatService.chat(request.message(), request.fileUrl());
+    public Response chat(@RequestBody TextRequest request) {
+        return chatService.chat(request.message);
     }
 
 
+    public record TextRequest(String message) {
+    }
 }

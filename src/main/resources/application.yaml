@@ -2,5 +2,10 @@ spring:
   application:
     name: spring-ai-2-substack-hero
   ai:
-    openai:
-      api-key: ${OPEN_AI_API_KEY}
+    ollama:
+      chat:
+        options:
+          model: "qwen3"
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor: DEBUG
