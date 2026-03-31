@@ -1,7 +1,16 @@
 spring:
   application:
     name: spring-ai-2-substack-hero
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
   ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
     ollama:
       chat:
         options:

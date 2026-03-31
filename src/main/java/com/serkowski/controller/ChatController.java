@@ -1,6 +1,5 @@
 package com.serkowski.controller;
 
-import com.serkowski.model.Response;
 import com.serkowski.service.ChatService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,11 +15,11 @@ public class ChatController {
     }
 
     @PostMapping("/chat")
-    public Response chat(@RequestBody TextRequest request) {
-        return chatService.chat(request.message);
+    public String chat(@RequestBody TextRequest request) {
+        return chatService.chat(request.message, request.conversationId);
     }
 
 
-    public record TextRequest(String message) {
+    public record TextRequest(String message, String conversationId) {
     }
 }
