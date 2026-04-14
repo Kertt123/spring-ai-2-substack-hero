@@ -2,19 +2,33 @@ spring:
   application:
     name: spring-ai-2-substack-hero
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5432/postgresRag
+    username: postgresRag
+    password: postgresRag
   ai:
     chat:
       memory:
         repository:
           jdbc:
             initialize-schema: always
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 1024
+        max-document-batch-size: 10000
+        initialize-schema: true
     ollama:
+      embedding:
+        model: qwen3-embedding:0.6b
       chat:
         options:
           model: "qwen3"
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
 logging:
   level:
     org.springframework.ai.chat.client.advisor: DEBUG

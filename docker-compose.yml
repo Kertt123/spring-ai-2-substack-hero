@@ -1,16 +1,16 @@
 version: '3.8'
 services:
   postgres:
-    image: postgres:13
+    image: pgvector/pgvector:pg16
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgresRag
+      POSTGRES_USER: postgresRag
+      POSTGRES_PASSWORD: postgresRag
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_rag:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
+  postgres_data_rag:
 
