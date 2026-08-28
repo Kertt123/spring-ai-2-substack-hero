@@ -20,7 +20,7 @@ public class ChatService {
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
                 .advisors(a -> a.param(
                         QuestionAnswerAdvisor.FILTER_EXPRESSION,
-                        "filename == 'dysonManual.pdf'"))
+                        "excerpt_keywords CONTAINS 'Cleaner Head'"))
                 .call()
                 .content();
     }
