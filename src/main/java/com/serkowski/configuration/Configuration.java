@@ -1,6 +1,8 @@
 package com.serkowski.configuration;
 
+import com.serkowski.service.LlmRerankerDocumentPostProcessor;
 import com.serkowski.service.VectorStoreService;
+import org.jspecify.annotations.NonNull;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -20,7 +22,11 @@ import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQuery
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.ReactorClientHttpRequestFactory;
+import org.springframework.web.client.RestClient;
+import reactor.netty.http.client.HttpClient;
 
+import java.time.Duration;
 import java.util.List;
 
 @org.springframework.context.annotation.Configuration
@@ -35,16 +41,10 @@ public class Configuration {
     }
 
     @Bean
-    public ChatClient chatClient(ChatModel chatModel, ChatMemory chatMemory, VectorStore vectorStore) {
+    public ChatClient chatClient(ChatModel chatModel, ChatMemory chatMemory, VectorStore vectorStore, LlmRerankerDocumentPostProcessor reranker) {
         return ChatClient.builder(chatModel)
                 .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory)
                                 .build(),
-//                        QuestionAnswerAdvisor.builder(vectorStore)
-//                                .searchRequest(SearchRequest.builder()
-//                                        .topK(4)
-//                                        .similarityThreshold(0.3)
-//                                        .build())
-//                                .build()
                         RetrievalAugmentationAdvisor.builder()
                                 .queryTransformers(RewriteQueryTransformer.builder()
                                         .chatClientBuilder(ChatClient.builder(chatModel))
@@ -59,9 +59,10 @@ public class Configuration {
                                         .build())
                                 .documentRetriever(VectorStoreDocumentRetriever.builder()
                                         .vectorStore(vectorStore)
-                                        .similarityThreshold(0.5)
-                                        .topK(5)
+                                        .similarityThreshold(0.3)
+                                        .topK(10) //moved to 10 for better re-ranking results
                                         .build())
+//                                .documentPostProcessors(reranker)  // re-rank to top 3
                                 .build()
                 )
                 .build();
@@ -99,5 +100,33 @@ public class Configuration {
                         SummaryMetadataEnricher.SummaryType.CURRENT,
                         SummaryMetadataEnricher.SummaryType.NEXT
                 ));
+    }
+
+    @Bean
+    public LlmRerankerDocumentPostProcessor reranker() {
+        OllamaChatModel rerankerModel = OllamaChatModel.builder()
+                .ollamaApi(OllamaApi.builder()
+                        .restClientBuilder(getRestClientWithExtendedTimeout())
+                        .build())
+                .options(OllamaChatOptions.builder()
+                        .model("qwen3:4b")
+                        .temperature(0.0)
+                        .build())
+                .build();
+
+
+        return new LlmRerankerDocumentPostProcessor(
+                ChatClient.builder(rerankerModel).build(),
+                3  // keep top 3 after re-ranking
+        );
+    }
+
+    private static RestClient.@NonNull Builder getRestClientWithExtendedTimeout() {
+        return RestClient.builder()
+                .requestFactory(new ReactorClientHttpRequestFactory(
+                        HttpClient.create()
+                                .responseTimeout(Duration.ofSeconds(300))
+                ))
+                .baseUrl("http://localhost:11434");
     }
 }

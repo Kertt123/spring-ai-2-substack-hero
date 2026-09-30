@@ -19,6 +19,9 @@ spring:
         max-document-batch-size: 10000
         initialize-schema: true
     ollama:
+      client:
+        read-timeout: 300s
+        connect-timeout: 10s
       embedding:
         model: qwen3-embedding:0.6b
       chat:
