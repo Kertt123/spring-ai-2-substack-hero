@@ -18,9 +18,6 @@ public class ChatService {
         return chatClient.prompt()
                 .user(message)
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
-                .advisors(a -> a.param(
-                        QuestionAnswerAdvisor.FILTER_EXPRESSION,
-                        "excerpt_keywords CONTAINS 'Cleaner Head'"))
                 .call()
                 .content();
     }

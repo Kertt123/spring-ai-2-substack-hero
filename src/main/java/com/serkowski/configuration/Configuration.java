@@ -18,7 +18,7 @@ import org.springframework.ai.ollama.api.OllamaChatOptions;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;
 import org.springframework.ai.rag.preretrieval.query.expansion.MultiQueryExpander;
-import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQueryTransformer;
+import org.springframework.ai.rag.preretrieval.query.transformation.CompressionQueryTransformer;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.context.annotation.Bean;
@@ -46,23 +46,25 @@ public class Configuration {
                 .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory)
                                 .build(),
                         RetrievalAugmentationAdvisor.builder()
-                                .queryTransformers(RewriteQueryTransformer.builder()
-                                        .chatClientBuilder(ChatClient.builder(chatModel))
-                                        .build())
+                                .queryTransformers(
+                                        CompressionQueryTransformer.builder()
+                                                .chatClientBuilder(ChatClient.builder(chatModel))
+                                                .build()
+                                )
                                 .queryExpander(MultiQueryExpander.builder()
                                         .chatClientBuilder(ChatClient.builder(chatModel))
                                         .numberOfQueries(3)
                                         .includeOriginal(true)
                                         .build())
                                 .queryAugmenter(ContextualQueryAugmenter.builder()
-                                        .allowEmptyContext(true)
+                                        .allowEmptyContext(false)
                                         .build())
                                 .documentRetriever(VectorStoreDocumentRetriever.builder()
                                         .vectorStore(vectorStore)
                                         .similarityThreshold(0.3)
-                                        .topK(10) //moved to 10 for better re-ranking results
+                                        .topK(10)
                                         .build())
-//                                .documentPostProcessors(reranker)  // re-rank to top 3
+                                .documentPostProcessors(reranker)
                                 .build()
                 )
                 .build();
