@@ -1,5 +1,6 @@
 package com.serkowski.configuration;
 
+import com.serkowski.retriver.HybridDocumentRetriever;
 import com.serkowski.service.LlmRerankerDocumentPostProcessor;
 import com.serkowski.service.VectorStoreService;
 import org.jspecify.annotations.NonNull;
@@ -41,7 +42,7 @@ public class Configuration {
     }
 
     @Bean
-    public ChatClient chatClient(ChatModel chatModel, ChatMemory chatMemory, VectorStore vectorStore, LlmRerankerDocumentPostProcessor reranker) {
+    public ChatClient chatClient(ChatModel chatModel, ChatMemory chatMemory, VectorStore vectorStore, LlmRerankerDocumentPostProcessor reranker, HybridDocumentRetriever hybridDocumentRetriever) {
         return ChatClient.builder(chatModel)
                 .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory)
                                 .build(),
@@ -59,11 +60,7 @@ public class Configuration {
                                 .queryAugmenter(ContextualQueryAugmenter.builder()
                                         .allowEmptyContext(false)
                                         .build())
-                                .documentRetriever(VectorStoreDocumentRetriever.builder()
-                                        .vectorStore(vectorStore)
-                                        .similarityThreshold(0.3)
-                                        .topK(10)
-                                        .build())
+                                .documentRetriever(hybridDocumentRetriever)
                                 .documentPostProcessors(reranker)
                                 .build()
                 )

@@ -35,3 +35,11 @@ spring:
 logging:
   level:
     org.springframework.ai.chat.client.advisor: DEBUG
+
+
+app:
+  search:
+    fts-language: english   # must match language used in fts_vector column
+    # use 'simple' for multilingual documents
+    top-k: 5
+    similarity-threshold: 0.3
